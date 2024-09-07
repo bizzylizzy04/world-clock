@@ -8,10 +8,10 @@ function ClockTime() {
   let date = new Date(Date.now());
   let hours = date.getHours();
   let minutes = date.getMinutes();
-  let clock = `${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`;
+  let clock = ;
   const [icon, setIcon] = useState(sun);
   const [background, setBackground] = useState(dayBG);
-  const [time, setTime] = useState(clock);
+  const [time, setTime] = useState(`${hours < 10 ? "0" + hours : hours}:${minutes < 10 ? "0" + minutes : minutes}`);
   const [timeZone, setTimeZone] = useState('Time Zone');
   const [city, setCity] = useState('city');
   const [country, setCountry] = useState('country');
@@ -24,10 +24,10 @@ function ClockTime() {
         setCity(data.city);
         setCountry(data.country_code)
       }).catch((err) => console.log(err))
-  }, [city, country])
+  }, [city, country]) // maybe empty array here
 
   useEffect(() => {
-    fetch('http://worldtimeapi.org/api/ip')
+    fetch('https://worldtimeapi.org/api/ip')
       .then((response) => response.json())
       .then((data) => {
         if(hours <= 12) {
@@ -47,14 +47,27 @@ function ClockTime() {
       })
   }, [clock, timeZone])
 
-  useEffect(() => {
-    setInterval(() => {
-      setTime(Date.now());
-    }, 1000);
-  }, [])
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     setTime(Date.now());
+  //   }, 1000);
+  // }, [])
 
-  document.documentElement.style.background = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${background}) no-repeat center center fixed`
-  document.documentElement.style.backgroundSize = `cover`
+  useEffect(() => {
+  const intervalId = setInterval(() => {
+    let newDate = new Date();
+    let newHours = newDate.getHours();
+    let newMinutes = newDate.getMinutes();
+    setTime(`${newHours < 10 ? "0" + newHours : newHours}:${newMinutes < 10 ? "0" + newMinutes : newMinutes}`);
+  }, 1000);
+
+  return () => clearInterval(intervalId); // Cleanup interval on unmount
+}, []);
+  
+useEffect(() => {
+  document.documentElement.style.background = `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${background}) no-repeat center center fixed`;
+  document.documentElement.style.backgroundSize = `cover`;
+}, [background]); // Run whenever background changes
 
   return (
     <div className="lower-container move-up">
